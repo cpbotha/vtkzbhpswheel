@@ -2,7 +2,8 @@ src/*
 .vscode
 work/*
 build/*
-build_vtk/*
+build_u3d/*
+build_vtku3dexporter/*
 dist/*
 __pycache__/*
 wheelhouse/*

@@ -16,3 +16,5 @@ ninja = "==1.7.2.post2"
 setuptools = "==38.5.1"
 wheel = "==0.30.0"
 auditwheel = "==1.8.0"
+delocate = "==0.7.3"
+"9ec1285" = {path = "./../vtkwheel/dist/VTK-8.1.0-cp36-cp36m-macosx_10_13_x86_64.whl"}

@@ -3,16 +3,16 @@ from setup_utils import BinaryDistribution, get_data_files, get_package_data
 from setuptools import setup, find_packages
 
 
-root_package_dir = 'build_vtk'
+root_package_dir = 'build_vtku3dexporter'
 package_dir = {'': root_package_dir}
 packages = find_packages(root_package_dir)
 
 setup(
-    name='VTK',
-    version='8.1.0',
-    description='VTK is an open-source toolkit for 3D computer graphics, image processing, and visualization',
-    author='VTK Community',
-    url='https://www.vtk.org',
+    name='VTKU3DExporter',
+    version='0.3.4',
+    description='VTKU3DExporter makes it possible to export VTK scenes as U3D files for making 3D PDFs',
+    author='U3D Community',
+    url='https://github.com/ClinicalGraphics/u3d',
     package_dir=package_dir,
     package_data=get_package_data(packages, package_dir=package_dir),
     packages=packages,

@@ -1,21 +1,13 @@
 import subprocess
 import os
 import sys
+import vtk
+
+from build_u3d import clone_u3d
 
 
 is_win = (sys.platform == 'win32')
 is_darwin = (sys.platform == 'darwin')
-
-
-def clone_vtk(branch="v8.1.0", dir="src/vtk"):
-    """Shallow-clone of VTK gitlab repo of tip of `branch` to `dir`."""
-    if os.path.exists(dir):
-        return
-    os.makedirs(os.path.dirname(dir), exist_ok=True)
-    print(f"> cloning VTK {branch}")
-    clone_cmd = f"git clone --depth 1 -b {branch} https://gitlab.kitware.com/vtk/vtk.git {dir}"
-    print(f"> {clone_cmd}")
-    subprocess.check_call(clone_cmd, shell=True)
 
 
 def download_install_ninja_win(version="1.8.2", zip_file="src/ninja.zip"):
@@ -52,15 +44,17 @@ def generate_libpython(filepath="work/vtk/libpython.notreally"):
     return filepath
 
 
-def build_vtk(src="../../src/vtk",
-              work="work/vtk",
-              build="../../build_vtk",
-              python_library="work/vtk/libpython.notreally",
-              generator="Ninja",
-              install_cmd="ninja install",
-              install_dev=True,
-              clean_cmake_cache=True):
-    """Build and install VTK using CMake."""
+def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
+                         work="work/vtku3dexporter",
+                         build="../../build_vtku3dexporter",
+                        #  python_library="/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/libpython3.6m.dylib",
+                        #  generator="Ninja",
+                        #  install_cmd="ninja -j 1 install",
+                         generator="Unix Makefiles",
+                         install_cmd="make install",
+                         install_dev=True,
+                         clean_cmake_cache=True):
+    """Build and install VTKU3DExporter using CMake."""
     build_cmd = []
     if is_win:
         python_include_dir = f"{sys.prefix}/include"
@@ -76,12 +70,21 @@ def build_vtk(src="../../src/vtk",
 
     # being helpful
     validation_errors = []
-    if not os.path.exists(python_library):
-        validation_errors.append(f"!! python_library does not exist at: '{python_library}'")
+    # if not os.path.exists(python_library):
+    #     validation_errors.append(f"!! python_library does not exist at: '{python_library}'")
     if not os.path.exists(python_include_dir):
         validation_errors.append(f"!! python_include_dir does not exist at: '{python_include_dir}'")
     if validation_errors:
         raise ValueError("\n".join(validation_errors))
+
+    # Help Cmake find the u3d lib
+    u3d_build_path = os.path.abspath('build_u3d')
+    print(os.path.abspath(os.path.curdir))
+    vtk_dir_path = os.path.normpath(os.path.join(sys.prefix, 'lib/python3.6/site-packages/vtk'))
+    print(vtk_dir_path)
+    vtk_notreally_path = os.path.abspath('work/vtk')
+    print(vtk_notreally_path)
+    # print(os.path.abspath(os.path.curdir))
 
     # compose cmake command
     cmake_cmd = ["cmake"]
@@ -91,29 +94,19 @@ def build_vtk(src="../../src/vtk",
         src,
         f"-G \"{generator}\"",
         "-DCMAKE_BUILD_TYPE=Release",
-        # INSTALL options
         f"-DCMAKE_INSTALL_PREFIX:PATH={build}",
-        f"-DVTK_INSTALL_PYTHON_MODULE_DIR:STRING=.",  # VTK will automatically create a subdir "vtk"
-        f"-DVTK_INSTALL_LIBRARY_DIR:PATH=./vtk",  # so that's where we'll install our .so files
-        f"-DVTK_INSTALL_ARCHIVE_DIR:PATH=./vtk",
-        f"-DVTK_INSTALL_RUNTIME_DIR:PATH=./bin",
-        f"-DVTK_INSTALL_INCLUDE_DIR:PATH=./include",
-        f"-DVTK_INSTALL_NO_DEVELOPMENT:BOOL={'ON' if not install_dev else 'OFF'}",
-        # BUILD options
-        "-DVTK_LEGACY_REMOVE:BOOL=ON",
-        "-DBUILD_DOCUMENTATION:BOOL=OFF",
-        "-DBUILD_TESTING:BOOL=OFF",
-        "-DBUILD_EXAMPLES:BOOL=OFF",
-        "-DBUILD_SHARED_LIBS:BOOL=ON",
+        # f"-DCMAKE_LIBRARY_PATH:PATH=\"{vtk_notreally_path}\"",
+        # f"-DPATHS={u3d_build_path}:{vtk_notreally_path}",
+        f"-DCMAKE_PREFIX_PATH:PATH=\"{u3d_build_path}\"",
+        f"-DVTK_DIR={vtk_dir_path}",
         # PythonLibs options https://cmake.org/cmake/help/latest/module/FindPythonLibs.html
         f"-DPYTHON_INCLUDE_DIR:PATH=\"{python_include_dir}\"",
-        f"-DPYTHON_LIBRARY:FILEPATH=\"{python_library}\"",
+        # f"-DPYTHON_LIBRARY:FILEPATH=\"{python_library}\"",
         # PythonInterp options https://cmake.org/cmake/help/latest/module/FindPythonInterp.html
         f"-DPYTHON_EXECUTABLE:FILEPATH=\"{sys.executable}\"",
         # Wrapping options
-        "-DVTK_ENABLE_VTKPYTHON:BOOL=OFF",
-        "-DVTK_WRAP_PYTHON:BOOL=ON",
-        "-DVTK_WRAP_TCL:BOOL=OFF",
+        "-DWRAP_PYTHON:BOOL=ON",
+        f"-DINSTALL_PYTHON_MODULE_DIR:PATH=\".\"",
     ])
     # rpath settings
     # https://github.com/jcfr/VTKPythonPackage/blob/b30ce84696a3ea0bcf42052646a28bdf854ac819/CMakeLists.txt#L175
@@ -122,6 +115,7 @@ def build_vtk(src="../../src/vtk",
         cmake_cmd.extend([
             "-DCMAKE_INSTALL_NAME_DIR:STRING=@loader_path",
             "-DCMAKE_INSTALL_RPATH:STRING=@loader_path",
+            "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'",
         ])
     elif not is_win:
         cmake_cmd.extend([
@@ -132,7 +126,7 @@ def build_vtk(src="../../src/vtk",
     build_cmd.append(install_cmd)
 
     build_cmd = " && ".join(build_cmd)
-    print(f"> configuring, building and installing VTK")
+    print(f"> configuring, building and installing VTKU3DExporter")
     print(f"> {build_cmd}")
 
     os.makedirs(work, exist_ok=True)
@@ -145,5 +139,5 @@ if __name__ == "__main__":
         download_install_ninja_win()
 
     generate_libpython()
-    clone_vtk()
-    build_vtk()
+    clone_u3d(branch='export-mesh-names')
+    build_vtku3dexporter()
