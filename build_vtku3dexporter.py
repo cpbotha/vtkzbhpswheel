@@ -46,12 +46,9 @@ def generate_libpython(filepath="work/vtk/libpython.notreally"):
 
 def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
                          work="work/vtku3dexporter",
-                         build="../../build_vtku3dexporter",
-                        #  python_library="/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/libpython3.6m.dylib",
-                        #  generator="Ninja",
-                        #  install_cmd="ninja -j 1 install",
-                         generator="Unix Makefiles",
-                         install_cmd="make install",
+                         build="../../build_u3d",
+                         generator="Ninja",
+                         install_cmd="ninja install",
                          install_dev=True,
                          clean_cmake_cache=True):
     """Build and install VTKU3DExporter using CMake."""
@@ -70,8 +67,6 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
 
     # being helpful
     validation_errors = []
-    # if not os.path.exists(python_library):
-    #     validation_errors.append(f"!! python_library does not exist at: '{python_library}'")
     if not os.path.exists(python_include_dir):
         validation_errors.append(f"!! python_include_dir does not exist at: '{python_include_dir}'")
     if validation_errors:
@@ -79,12 +74,8 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
 
     # Help Cmake find the u3d lib
     u3d_build_path = os.path.abspath('build_u3d')
-    print(os.path.abspath(os.path.curdir))
     vtk_dir_path = os.path.normpath(os.path.join(sys.prefix, 'lib/python3.6/site-packages/vtk'))
-    print(vtk_dir_path)
     vtk_notreally_path = os.path.abspath('work/vtk')
-    print(vtk_notreally_path)
-    # print(os.path.abspath(os.path.curdir))
 
     # compose cmake command
     cmake_cmd = ["cmake"]
@@ -93,28 +84,26 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
     cmake_cmd.extend([
         src,
         f"-G \"{generator}\"",
-        "-DCMAKE_BUILD_TYPE=Release",
+        f"-DCMAKE_BUILD_TYPE=Release",
         f"-DCMAKE_INSTALL_PREFIX:PATH={build}",
-        # f"-DCMAKE_LIBRARY_PATH:PATH=\"{vtk_notreally_path}\"",
-        # f"-DPATHS={u3d_build_path}:{vtk_notreally_path}",
-        f"-DCMAKE_PREFIX_PATH:PATH=\"{u3d_build_path}\"",
+        f"-DCMAKE_PREFIX_PATH:PATH=\"{u3d_build_path};{u3d_build_path}/vtku3dexporter\"",
         f"-DVTK_DIR={vtk_dir_path}",
+        f"-DWRAP_PYTHON:BOOL=ON",
+        f"-DINSTALL_PYTHON_MODULE_DIR:PATH=.",
         # PythonLibs options https://cmake.org/cmake/help/latest/module/FindPythonLibs.html
         f"-DPYTHON_INCLUDE_DIR:PATH=\"{python_include_dir}\"",
-        # f"-DPYTHON_LIBRARY:FILEPATH=\"{python_library}\"",
         # PythonInterp options https://cmake.org/cmake/help/latest/module/FindPythonInterp.html
         f"-DPYTHON_EXECUTABLE:FILEPATH=\"{sys.executable}\"",
-        # Wrapping options
-        "-DWRAP_PYTHON:BOOL=ON",
-        f"-DINSTALL_PYTHON_MODULE_DIR:PATH=\".\"",
+        # f"-DPATHS={u3d_build_path};{vtk_notreally_path}",
     ])
     # rpath settings
     # https://github.com/jcfr/VTKPythonPackage/blob/b30ce84696a3ea0bcf42052646a28bdf854ac819/CMakeLists.txt#L175
     # https://cmake.org/Wiki/CMake_RPATH_handling
     if is_darwin:
         cmake_cmd.extend([
-            "-DCMAKE_INSTALL_NAME_DIR:STRING=@loader_path",
+            "-DCMAKE_INSTALL_NAME_DIR:STRING=\"@rpath;@rpath/../vtk\"",
             "-DCMAKE_INSTALL_RPATH:STRING=@loader_path",
+            "-DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE",
             "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'",
         ])
     elif not is_win:

@@ -58,19 +58,23 @@ def build_u3d(src="../../src/u3d",
     cmake_cmd = ["cmake"]
     if clean_cmake_cache and os.path.exists(work):
         cmake_cmd.append("-U *")
+    # put libs and plugins directly in vtku3dexporter folder so that they get packaged
+    # together in the vtku3dexporter wheel
     cmake_cmd.extend([
         src,
         f"-G \"{generator}\"",
-        "-DCMAKE_BUILD_TYPE=Release",
+        f"-DCMAKE_BUILD_TYPE=Release",
         f"-DCMAKE_INSTALL_PREFIX:PATH={build}",
-        "-DU3D_SHARED:BOOL=ON",
+        f"-DU3D_SHARED:BOOL=ON",
+        f"-DLIB_DESTINATION:PATH=./vtku3dexporter",
+        f"-DPLUGIN_DESTINATION:PATH=./vtku3dexporter",
     ])
     # rpath settings
     # https://github.com/jcfr/VTKPythonPackage/blob/b30ce84696a3ea0bcf42052646a28bdf854ac819/CMakeLists.txt#L175
     # https://cmake.org/Wiki/CMake_RPATH_handling
     if is_darwin:
         cmake_cmd.extend([
-            "-DCMAKE_INSTALL_NAME_DIR:STRING=@loader_path",
+            "-DCMAKE_INSTALL_NAME_DIR:STRING=@rpath",
             "-DCMAKE_INSTALL_RPATH:STRING=@loader_path",
             "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'",
         ])
