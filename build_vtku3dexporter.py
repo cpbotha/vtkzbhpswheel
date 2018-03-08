@@ -4,6 +4,8 @@ import sys
 import vtk
 
 from build_u3d import clone_u3d
+import build_utils
+import setup_utils
 
 
 is_win = (sys.platform == 'win32')
@@ -52,35 +54,37 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
                          install_dev=True,
                          clean_cmake_cache=True):
     """Build and install VTKU3DExporter using CMake."""
+    if not is_win:
+        # on linux/macOS, generate an empty libpython file to link against for PEP513 compliance
+        subprocess.check_call(f"touch {work}/libpython.fake", shell=True)
+        python_library = os.path.abspath(os.path.join(work, "libpython.fake"))
+    else:
+        # on Windows that is not supported and we need the real pythonXY.lib file
+        python_library = setup_utils.get_python_lib()
+    python_include_dir = setup_utils.get_python_include_dir()
+    site_packages_abs = setup_utils.get_site_packages_dir()
+    site_packages_dir = os.path.relpath(site_packages_abs, sys.prefix)
+
     build_cmd = []
     if is_win:
-        python_include_dir = f"{sys.prefix}/include"
         # only support VS2017 build tools for now
-        vcvarsall_cmd = "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat\" amd64"  # noqa
+        vcvarsall_cmd = f"\"{setup_utils.get_vcvarsall()}\" amd64"
         build_cmd.append(vcvarsall_cmd)
-    elif is_darwin:
-        version_string = f"{sys.version_info[0]}.{sys.version_info[1]}{sys.abiflags}"
-        python_include_dir = f"{sys.prefix}/include/python{version_string}"
-    else:
-        version_string = f"{sys.version_info[0]}.{sys.version_info[1]}{sys.abiflags}"
-        python_include_dir = f"{sys.prefix}/include/python{version_string}"
-
-    # being helpful
-    validation_errors = []
-    if not os.path.exists(python_include_dir):
-        validation_errors.append(f"!! python_include_dir does not exist at: '{python_include_dir}'")
-    if validation_errors:
-        raise ValueError("\n".join(validation_errors))
 
     # Help Cmake find the u3d lib
     u3d_build_path = os.path.abspath('build_u3d')
-    vtk_dir_path = os.path.normpath(os.path.join(sys.prefix, 'lib/python3.6/site-packages/vtk'))
-    vtk_notreally_path = os.path.abspath('work/vtk')
+    if is_win:
+        vtk_dir_path = f'{sys.prefix}\\Lib\\cmake\\vtk-8.1'
+    else:
+        vtk_dir_path = f'{site_packages_abs}/vtk'
 
     # compose cmake command
     cmake_cmd = ["cmake"]
     if clean_cmake_cache and os.path.exists(work):
-        cmake_cmd.append("-U *")
+        if is_win:
+            cmake_cmd.append('"-U *"')  # needs to be quoted on windows because cmake's CLI is inconsistent
+        else:
+            cmake_cmd.append("-U *")
     cmake_cmd.extend([
         src,
         f"-G \"{generator}\"",
@@ -94,7 +98,6 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
         f"-DPYTHON_INCLUDE_DIR:PATH=\"{python_include_dir}\"",
         # PythonInterp options https://cmake.org/cmake/help/latest/module/FindPythonInterp.html
         f"-DPYTHON_EXECUTABLE:FILEPATH=\"{sys.executable}\"",
-        # f"-DPATHS={u3d_build_path};{vtk_notreally_path}",
     ])
     # rpath settings
     # https://github.com/jcfr/VTKPythonPackage/blob/b30ce84696a3ea0bcf42052646a28bdf854ac819/CMakeLists.txt#L175
@@ -109,6 +112,15 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
     elif not is_win:
         cmake_cmd.extend([
             "-DCMAKE_INSTALL_RPATH:STRING=\$ORIGIN",
+        ])
+    elif is_win:
+        cmake_cmd.extend([
+            f"-DZLIB_LIBRARY=\"{site_packages_abs}\\vtk\\vtkzlib-8.1.lib\"",
+            f"-DPNG_LIBRARY=\"{site_packages_abs}\\vtk\\vtkpng-8.1.lib\"",
+            f"-DJPEG_LIBRARY=\"{site_packages_abs}\\vtk\\vtkjpeg-8.1.lib\"",
+            f"-DZLIB_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkzlib\"",
+            f"-DPNG_PNG_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkpng\"",
+            f"-DJPEG_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkjpeg\"",
         ])
 
     build_cmd.append(" ".join(cmake_cmd))
@@ -125,7 +137,8 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
 if __name__ == "__main__":
     if is_win:
         # could not get it to work with the version of ninja that is on pypi, so put it on the current path
-        download_install_ninja_win()
+        build_utils.download_install_ninja_win()
+        build_utils.download_install_cmake_win()
 
     generate_libpython()
     clone_u3d(branch='export-mesh-names')
