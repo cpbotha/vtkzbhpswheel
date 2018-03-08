@@ -31,7 +31,7 @@ def build_u3d(src="../../src/u3d",
     build_cmd = []
     if is_win:
         # only support VS2017 build tools for now
-        vcvarsall_cmd = "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat\" amd64"  # noqa
+        vcvarsall_cmd = f"\"{setup_utils.get_vcvarsall()}\" amd64"
         build_cmd.append(vcvarsall_cmd)
 
     # compose cmake command
