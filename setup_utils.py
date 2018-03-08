@@ -1,9 +1,15 @@
 from itertools import chain
 from collections import defaultdict
-from os.path import isfile, relpath, dirname, splitext, join
+from os.path import isfile, relpath, dirname, splitext, join, exists, expandvars
 from setuptools.dist import Distribution
 from glob import iglob
 import inspect
+import os
+import sys
+
+
+is_win = (sys.platform == 'win32')
+is_darwin = (sys.platform == 'darwin')
 
 
 class BinaryDistribution(Distribution):
@@ -23,11 +29,11 @@ class BinaryDistribution(Distribution):
     def has_ext_modules(self):
         return True
 
-
     def __getattribute__(self, name):
         if name == "ext_modules":
             is_finalize_options_call = [frame for frame in inspect.stack()
-                                        if frame.filename.endswith('install.py') and frame.function == 'finalize_options']
+                                        if frame.filename.endswith('install.py') and
+                                        frame.function == 'finalize_options']
             if is_finalize_options_call:
                 # this distutils function checks the self.ext_modules attribute directly for truthiness, instead
                 # of calling self.has_ext_modules()
@@ -136,3 +142,54 @@ def get_data_files(prefix, paths):
         data_files[target_dir].append(filename)
 
     return list(data_files.items())
+
+
+def get_python_lib():
+    """
+    Returns absolute path to libpythonX.YZ.so on linux, libpythonX.Y.dylib on macOS or pythonXY.lib on windows.
+    """
+    if is_win:
+        version_string = f"{sys.version_info[0]}{sys.version_info[1]}"
+        python_lib = expandvars(
+            f"%LOCALAPPDATA%\\Programs\\Python\\Python{version_string}\\libs\\python{version_string}.lib"
+        )
+    elif is_darwin:
+        version_string = f"{sys.version_info[0]}.{sys.version_info[1]}"
+        python_lib = f"{sys.prefix}/lib/x86_64-linux-gnu/libpython{version_string}.dylib"
+    else:
+        version_string = f"{sys.version_info[0]}.{sys.version_info[1]}{sys.abiflags}"
+        python_lib = f"/usr/lib/x86_64-linux-gnu/libpython{version_string}.so.1.0"
+    assert exists(python_lib)
+    return python_lib
+
+
+def get_python_include_dir():
+    if is_win:
+        include_dir = f"{sys.prefix}\\include"
+    else:
+        version_string = f"{sys.version_info[0]}.{sys.version_info[1]}{sys.abiflags}"
+        include_dir = f"{sys.prefix}/include/python{version_string}"
+
+    assert exists(include_dir)
+    return include_dir
+
+
+def get_site_packages_dir():
+    """
+    Returns absolute path to site packages dir.
+    """
+    if is_win:
+        site_packages = f"{sys.prefix}\\Lib\\site-packages"
+    else:
+        site_packages = f"{sys.prefix}/lib/python{sys.version_info[0]}.{sys.version_info[1]}/site-packages"
+
+    assert exists(site_packages)
+    return site_packages
+
+
+def get_vcvarsall():
+    path = expandvars(
+        "%PROGRAMFILES(x86)%\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat"
+    )
+    assert exists(path)
+    return path
