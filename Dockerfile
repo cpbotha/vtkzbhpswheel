@@ -10,10 +10,13 @@ COPY ./Pipfile .
 RUN pipenv install --dev --system --skip-lock
 
 RUN yum install -y libXt-devel mesa-libGL-devel
-COPY ./build_vtk.py .
-RUN python build_vtk.py
-
 COPY ./setup_utils.py .
+COPY ./build_utils.py .
+COPY ./build_u3d.py .
+COPY ./build_vtku3dexporter.py .
+RUN python build_u3d.py
+RUN python build_vtku3dexporter.py
+
 COPY ./setup.py .
 COPY ./Dockerfile_entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
