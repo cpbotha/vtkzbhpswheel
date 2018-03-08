@@ -1,6 +1,8 @@
 import subprocess
 import os
 import sys
+import build_utils
+import setup_utils
 
 
 is_win = (sys.platform == 'win32')
@@ -16,28 +18,6 @@ def clone_u3d(branch="0.3.3", dir="src/u3d"):
     clone_cmd = f"git clone --depth 1 -b {branch} git@github.com:ClinicalGraphics/u3d.git {dir}"
     print(f"> {clone_cmd}")
     subprocess.check_call(clone_cmd, shell=True)
-
-
-def download_install_ninja_win(version="1.8.2", zip_file="src/ninja.zip"):
-    os.makedirs(os.path.dirname(zip_file), exist_ok=True)
-    if not os.path.isfile(zip_file):
-        print(f"> downloading ninja v{version}")
-        from urllib.request import urlretrieve
-        url = f"https://github.com/ninja-build/ninja/releases/download/v{version}/ninja-win.zip"
-        urlretrieve(url, zip_file)
-
-    current = subprocess.check_output("ninja --version", shell=True).decode().strip()
-    if version != current:
-        print(f"> overwriting ninja (v{current}) with v{version}")
-        scripts_dir = os.path.join(sys.prefix, "Scripts")
-        import zipfile
-        with zipfile.ZipFile(zip_file, 'r') as zh:
-            zh.extractall(scripts_dir)
-
-        current = subprocess.check_output("ninja --version", shell=True).decode().strip()
-        if version != current:
-            exit(f"> overwriting ninja FAILED")
-        print(f"> overwriting ninja succeeded")
 
 
 def build_u3d(src="../../src/u3d",
@@ -57,7 +37,10 @@ def build_u3d(src="../../src/u3d",
     # compose cmake command
     cmake_cmd = ["cmake"]
     if clean_cmake_cache and os.path.exists(work):
-        cmake_cmd.append("-U *")
+        if is_win:
+            cmake_cmd.append('"-U *"')  # needs to be quoted on windows because cmake's CLI is inconsistent
+        else:
+            cmake_cmd.append("-U *")
     # put libs and plugins directly in vtku3dexporter folder so that they get packaged
     # together in the vtku3dexporter wheel
     cmake_cmd.extend([
@@ -82,6 +65,16 @@ def build_u3d(src="../../src/u3d",
         cmake_cmd.extend([
             "-DCMAKE_INSTALL_RPATH:STRING=\$ORIGIN",
         ])
+    elif is_win:
+        site_packages = setup_utils.get_site_packages_dir()
+        cmake_cmd.extend([
+            f"-DZLIB_LIBRARY=\"{site_packages}\\vtk\\vtkzlib-8.1.lib\"",
+            f"-DPNG_LIBRARY=\"{site_packages}\\vtk\\vtkpng-8.1.lib\"",
+            f"-DJPEG_LIBRARY=\"{site_packages}\\vtk\\vtkjpeg-8.1.lib\"",
+            f"-DZLIB_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkzlib\"",
+            f"-DPNG_PNG_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkpng\"",
+            f"-DJPEG_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkjpeg\"",
+        ])
 
     build_cmd.append(" ".join(cmake_cmd))
     build_cmd.append(install_cmd)
@@ -97,7 +90,8 @@ def build_u3d(src="../../src/u3d",
 if __name__ == "__main__":
     if is_win:
         # could not get it to work with the version of ninja that is on pypi, so put it on the current path
-        download_install_ninja_win()
+        build_utils.download_install_ninja_win()
+        build_utils.download_install_cmake_win()
 
     clone_u3d(branch='export-mesh-names')
     build_u3d()
