@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "739604d063a6d672a5afd7b41ee5413dbc2fe502b352c4660b2b35bbdd3d74c9"
+            "sha256": "83efd12929ac21e4a843b1fa8e5616589438418efcc2ba6247bb5fcf2fb142a9"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -23,14 +23,16 @@
                 "name": "pypi",
                 "url": "https://pypi.python.org/simple",
                 "verify_ssl": true
+            },
+            {
+                "name": "berend",
+                "url": "https://pypi.anaconda.org/berend/simple",
+                "verify_ssl": true
             }
         ]
     },
     "default": {},
     "develop": {
-        "9ec1285": {
-            "path": "./../vtkwheel/dist/VTK-8.1.0-cp36-cp36m-macosx_10_13_x86_64.whl"
-        },
         "auditwheel": {
             "hashes": [
                 "sha256:63468bf62d82b27b1635ffe1c3f1c4e54ef67d0a6d38bedccc38ce6965d56db7",
@@ -123,6 +125,23 @@
                 "sha256:d400a9344254803a2368533e4533a4200d21eb7b6b729c173bc38201a74db3f2"
             ],
             "version": "==3.6.4"
+        },
+        "vtk": {
+            "hashes": [
+                "sha256:968222deddc9aae974872286eca18a44aeecac18f0b1a6dcd77ee458539fc9e0",
+                "sha256:e4af16925211ffbf6adc73e399d66e81f288ee95c4233c63c5a7461d80fe2d6b",
+                "sha256:caefcabbf9ae20771430b17816e1e3c7c1bca5aed15635dda69433196c0e73ba",
+                "sha256:132f638754747a955c4575dc7b766fa014664cb1c2d0d39222109fdf7a2824ec",
+                "sha256:16347a535bc14562bde8726436a5c3e52b4a1e23ce8e9d6538359d93da0b94e4",
+                "sha256:18381694b8cd171d6e41c548b76a2a438d760c5c7f3988956791ad75652eaff9",
+                "sha256:99b94292209ea93eb65bac3614c4e481fae958b4f18b32b9e9f4bdc9615b6841",
+                "sha256:0dfd9fca34543c9b532b4e365059e17d005cba92c06eae55ea5aa09bb971fa27",
+                "sha256:50bc29f26cf78cf3d4633a312a83536d1cfa22ec92ce25e4a9a779288e46f6ea",
+                "sha256:eae825f7fc335c049dbbe3198ddc0df108566e74064bdeb1415a31387e7d2c54",
+                "sha256:94c695147f0ffed5b04a74cbaed9288c3d4590ae8d2fc2ee376d67f83b2882c0"
+            ],
+            "index": "berend",
+            "version": "==8.1.0"
         },
         "wheel": {
             "hashes": [
