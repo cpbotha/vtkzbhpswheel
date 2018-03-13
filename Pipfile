@@ -4,6 +4,7 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+
 [[source]]
 
 url = "https://pypi.anaconda.org/berend/simple"
@@ -24,3 +25,4 @@ wheel = "==0.30.0"
 auditwheel = "==1.8.0"
 delocate = "==0.7.3"
 vtk = {version="==8.1.0", index="berend"}
+"flake8" = "*"
