@@ -34,6 +34,9 @@ def build_u3d(src="../../src/u3d",
         vcvarsall_cmd = f"\"{setup_utils.get_vcvarsall()}\" amd64"
         build_cmd.append(vcvarsall_cmd)
 
+    site_packages_abs = setup_utils.get_site_packages_dir()
+    site_packages_dir = os.path.relpath(site_packages_abs, sys.prefix)
+
     # compose cmake command
     cmake_cmd = ["cmake"]
     if clean_cmake_cache and os.path.exists(work):
@@ -49,8 +52,8 @@ def build_u3d(src="../../src/u3d",
         f"-DCMAKE_BUILD_TYPE=Release",
         f"-DCMAKE_INSTALL_PREFIX:PATH={build}",
         f"-DU3D_SHARED:BOOL=ON",
-        f"-DLIB_DESTINATION:PATH=./vtku3dexporter",
-        f"-DPLUGIN_DESTINATION:PATH=./vtku3dexporter",
+        f"-DLIB_DESTINATION:PATH=./{site_packages_dir}/vtku3dexporter",
+        f"-DPLUGIN_DESTINATION:PATH=./{site_packages_dir}/vtku3dexporter",
     ])
     # rpath settings
     # https://github.com/jcfr/VTKPythonPackage/blob/b30ce84696a3ea0bcf42052646a28bdf854ac819/CMakeLists.txt#L175
@@ -66,11 +69,11 @@ def build_u3d(src="../../src/u3d",
             "-DCMAKE_INSTALL_RPATH:STRING=\$ORIGIN",
         ])
     elif is_win:
-        site_packages = setup_utils.get_site_packages_dir()
         cmake_cmd.extend([
-            f"-DZLIB_LIBRARY=\"{site_packages}\\vtk\\vtkzlib-8.1.lib\"",
-            f"-DPNG_LIBRARY=\"{site_packages}\\vtk\\vtkpng-8.1.lib\"",
-            f"-DJPEG_LIBRARY=\"{site_packages}\\vtk\\vtkjpeg-8.1.lib\"",
+            f"-DBIN_DESTINATION:PATH=./Scripts",
+            f"-DZLIB_LIBRARY=\"{site_packages_abs}\\vtk\\vtkzlib-8.1.lib\"",
+            f"-DPNG_LIBRARY=\"{site_packages_abs}\\vtk\\vtkpng-8.1.lib\"",
+            f"-DJPEG_LIBRARY=\"{site_packages_abs}\\vtk\\vtkjpeg-8.1.lib\"",
             f"-DZLIB_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkzlib\"",
             f"-DPNG_PNG_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkpng\"",
             f"-DJPEG_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkjpeg\"",

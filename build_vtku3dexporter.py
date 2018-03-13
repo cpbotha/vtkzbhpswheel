@@ -1,5 +1,6 @@
 import subprocess
 import os
+import shutil
 import sys
 
 from build_u3d import clone_u3d
@@ -53,13 +54,18 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
                          install_dev=True,
                          clean_cmake_cache=True):
     """Build and install VTKU3DExporter using CMake."""
-    if not is_win:
-        # on linux/macOS, generate an empty libpython file to link against for PEP513 compliance
-        subprocess.check_call(f"touch {work}/libpython.fake", shell=True)
-        python_library = os.path.abspath(os.path.join(work, "libpython.fake"))
+
+    assert os.path.isdir('build_u3d')
+
+    if os.path.isdir('build_u3d_backup'):
+        print('> Restoring backup at build_u3d_backup to build_u3d')
+        shutil.rmtree('build_u3d', ignore_errors=True)
+        assert not os.path.isdir('build_u3d')
+        shutil.copytree('build_u3d_backup', 'build_u3d')
     else:
-        # on Windows that is not supported and we need the real pythonXY.lib file
-        python_library = setup_utils.get_python_lib()
+        print('> Creating backup of build_u3d folder at build_u3d_backup')
+        shutil.copytree('build_u3d', 'build_u3d_backup')
+
     python_include_dir = setup_utils.get_python_include_dir()
     site_packages_abs = setup_utils.get_site_packages_dir()
     site_packages_dir = os.path.relpath(site_packages_abs, sys.prefix)
@@ -72,6 +78,7 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
 
     # Help Cmake find the u3d lib
     u3d_build_path = os.path.abspath('build_u3d')
+    u3d_build_site_packages_path = os.path.abspath(f'build_u3d/{site_packages_dir}/vtku3dexporter')
     if is_win:
         vtk_dir_path = f'{sys.prefix}\\Lib\\cmake\\vtk-8.1'
     else:
@@ -89,10 +96,10 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
         f"-G \"{generator}\"",
         f"-DCMAKE_BUILD_TYPE=Release",
         f"-DCMAKE_INSTALL_PREFIX:PATH={build}",
-        f"-DCMAKE_PREFIX_PATH:PATH=\"{u3d_build_path};{u3d_build_path}/vtku3dexporter\"",
+        f"-DCMAKE_PREFIX_PATH:PATH=\"{u3d_build_path};{u3d_build_site_packages_path}\"",
         f"-DVTK_DIR={vtk_dir_path}",
         f"-DWRAP_PYTHON:BOOL=ON",
-        f"-DINSTALL_PYTHON_MODULE_DIR:PATH=.",
+        f"-DINSTALL_PYTHON_MODULE_DIR:PATH=./{site_packages_dir}",
         # PythonLibs options https://cmake.org/cmake/help/latest/module/FindPythonLibs.html
         f"-DPYTHON_INCLUDE_DIR:PATH=\"{python_include_dir}\"",
         # PythonInterp options https://cmake.org/cmake/help/latest/module/FindPythonInterp.html
