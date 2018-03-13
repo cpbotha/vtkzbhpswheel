@@ -1,7 +1,6 @@
 import subprocess
 import os
 import sys
-import vtk
 
 from build_u3d import clone_u3d
 import build_utils
@@ -112,15 +111,6 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
     elif not is_win:
         cmake_cmd.extend([
             "-DCMAKE_INSTALL_RPATH:STRING=\$ORIGIN",
-        ])
-    elif is_win:
-        cmake_cmd.extend([
-            f"-DZLIB_LIBRARY=\"{site_packages_abs}\\vtk\\vtkzlib-8.1.lib\"",
-            f"-DPNG_LIBRARY=\"{site_packages_abs}\\vtk\\vtkpng-8.1.lib\"",
-            f"-DJPEG_LIBRARY=\"{site_packages_abs}\\vtk\\vtkjpeg-8.1.lib\"",
-            f"-DZLIB_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkzlib\"",
-            f"-DPNG_PNG_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkpng\"",
-            f"-DJPEG_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkjpeg\"",
         ])
 
     build_cmd.append(" ".join(cmake_cmd))
