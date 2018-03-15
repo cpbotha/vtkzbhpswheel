@@ -138,5 +138,5 @@ if __name__ == "__main__":
         build_utils.download_install_cmake_win()
 
     generate_libpython()
-    clone_u3d(branch='export-mesh-names')
+    clone_u3d(branch='fix/build-wheel-improvements')
     build_vtku3dexporter()

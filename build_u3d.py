@@ -96,5 +96,5 @@ if __name__ == "__main__":
         build_utils.download_install_ninja_win()
         build_utils.download_install_cmake_win()
 
-    clone_u3d(branch='export-mesh-names')
+    clone_u3d(branch='fix/build-wheel-improvements')
     build_u3d()
