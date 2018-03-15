@@ -3,6 +3,8 @@ src/*
 work/*
 build/*
 build_u3d/*
+build_u3d_backup/*
+build_vtku3dexporter/*
 build_vtku3dexporter/*
 dist/*
 __pycache__/*
