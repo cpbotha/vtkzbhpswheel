@@ -55,7 +55,7 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
                          clean_cmake_cache=True):
     """Build and install VTKU3DExporter using CMake."""
 
-    assert os.path.isdir('build_u3d')
+    assert os.path.isdir('build_u3d') or os.path.isdir('build_u3d_backup')
 
     if os.path.isdir('build_u3d_backup'):
         print('> Restoring backup at build_u3d_backup to build_u3d')
