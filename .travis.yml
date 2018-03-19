@@ -6,7 +6,7 @@ install:
   - brew install python3
   - which python3
   - pip3 install --upgrade pip setuptools wheel || true
-  - pip3 install --user pipenv || true
+  - pip3 install pipenv
   - pipenv --version
   - pipenv install --dev --skip-lock
   - pipenv graph
