@@ -2,16 +2,19 @@ language: objective-c
 os: osx
 osx_image: xcode9.2
 
-install:
+before_install:
+  - brew update
   - brew install python3
-  - which python3
+
+install:
+  - python3 --version
   - pip3 install --upgrade pip setuptools wheel || true
   - pip3 install pipenv
   - pipenv --version
   - pipenv install --dev --skip-lock --verbose
   - pipenv graph
   - ls $(pipenv --venv)/include
-  - if [[ -d $(pipenv --venv)/include/vtk-8.1 ]]; then return 1; fi
+  - if [[ ! -d $(pipenv --venv)/include/vtk-8.1 ]]; then return 1; fi
 
 script:
   - pipenv run python build_u3d.py
