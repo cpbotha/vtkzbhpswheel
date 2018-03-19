@@ -8,7 +8,7 @@ install:
   - pip3 install --upgrade pip setuptools wheel || true
   - pip3 install pipenv
   - pipenv --version
-  - pipenv install --dev --skip-lock
+  - pipenv install --dev --skip-lock --verbose
   - pipenv graph
   - ls $(pipenv --venv)/include
   - if [[ -d $(pipenv --venv)/include/vtk-8.1 ]]; then return 1; fi
