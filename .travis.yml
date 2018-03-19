@@ -11,7 +11,7 @@ install:
   - pipenv install --dev
   - pipenv graph
   - cat Pipfile.lock
-  - python3 -c "import json; data = json.load(open('toet.json')); assert data['default']['vtk']['index'] == 'berend'"
+  - python3 -c "import json; data = json.load(open('Pipfile.lock')); assert data['default']['vtk']['index'] == 'berend'"
 
 script:
   - pipenv run python build_u3d.py
