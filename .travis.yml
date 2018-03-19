@@ -7,6 +7,9 @@ install:
   - pip3 install --upgrade pip setuptools wheel
   - pip3 install pipenv
   - pipenv install --dev
+  - pipenv graph
+  - cat Pipfile.lock
+  - python3 -c "import json; data = json.load(open('toet.json')); assert data['default']['vtk']['index'] == 'berend'"
 
 script:
   - pipenv run python build_u3d.py
