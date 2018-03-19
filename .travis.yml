@@ -4,7 +4,7 @@ os: osx
 install:
   - brew install python3
   - which python3
-  - pip3 install --upgrade pip
+  - pip3 install --upgrade pip setuptools wheel
   - pip3 install pipenv
   - pipenv install --dev
 
