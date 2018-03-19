@@ -14,15 +14,14 @@ name = "berend"
 
 [packages]
 
-
+vtk = {version="==8.1.0", index="berend"}
 
 [dev-packages]
 
-cmake = "==0.9.0"
-ninja = "==1.7.2.post2"
-setuptools = "==38.5.1"
-wheel = "==0.30.0"
-auditwheel = "==1.8.0"
-delocate = "==0.7.3"
-vtk = {version="==8.1.0", index="berend"}
-"flake8" = "*"
+cmake = {version="==0.9.0", index="pypi"}
+ninja = {version="==1.7.2.post2", index="pypi"}
+setuptools = {version="==38.5.1", index="pypi"}
+wheel = {version="==0.30.0", index="pypi"}
+auditwheel = {version="==1.8.0", sys_platform="=='linux'", index="pypi"}
+delocate = {version="==0.7.3", sys_platform="=='darwin'", index="pypi"}
+flake8 = {version="==3.5.0", index="pypi"}
