@@ -63,6 +63,12 @@ def build_u3d(src="../../src/u3d",
             "-DCMAKE_INSTALL_NAME_DIR:STRING=@rpath",
             "-DCMAKE_INSTALL_RPATH:STRING=@loader_path",
             "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'",
+            f"-DZLIB_LIBRARY=\"{site_packages_abs}/vtk/libvtkzlib-8.1.dylib\"",
+            f"-DPNG_LIBRARY=\"{site_packages_abs}/vtk/libvtkpng-8.1.dylib\"",
+            f"-DJPEG_LIBRARY=\"{site_packages_abs}/vtk/libvtkjpeg-8.1.dylib\"",
+            f"-DZLIB_INCLUDE_DIR=\"{sys.prefix}/include/vtk-8.1;{sys.prefix}/include/vtk-8.1/vtkzlib\"",
+            f"-DPNG_PNG_INCLUDE_DIR=\"{sys.prefix}/include/vtk-8.1;{sys.prefix}/include/vtk-8.1/vtkpng\"",
+            f"-DJPEG_INCLUDE_DIR=\"{sys.prefix}/include/vtk-8.1;{sys.prefix}/include/vtk-8.1/vtkjpeg\"",
         ])
     elif not is_win:
         cmake_cmd.extend([
