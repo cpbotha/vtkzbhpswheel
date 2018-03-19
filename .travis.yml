@@ -5,8 +5,9 @@ osx_image: xcode9.2
 install:
   - brew install python3
   - which python3
-  - python -m pip3 install --upgrade pip setuptools wheel
-  - pip3 install pipenv
+  - pip3 install --upgrade pip setuptools wheel || true
+  - pip3 install pipenv || true
+  - pipenv --version
   - pipenv install --dev
   - pipenv graph
   - cat Pipfile.lock
