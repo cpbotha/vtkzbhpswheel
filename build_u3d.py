@@ -15,7 +15,7 @@ def clone_u3d(branch="0.3.3", dir="src/u3d"):
         return
     os.makedirs(os.path.dirname(dir), exist_ok=True)
     print(f"> cloning U3D {branch}")
-    clone_cmd = f"git clone --depth 1 -b {branch} git@github.com:ClinicalGraphics/u3d.git {dir}"
+    clone_cmd = f"git clone --depth 1 -b {branch} https://github.com/ClinicalGraphics/u3d.git {dir}"
     print(f"> {clone_cmd}")
     subprocess.check_call(clone_cmd, shell=True)
 
