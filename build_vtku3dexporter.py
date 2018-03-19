@@ -114,6 +114,7 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
             "-DCMAKE_INSTALL_RPATH:STRING=@loader_path",
             "-DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE",
             "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'",
+            f"-DLIB_DESTINATION:PATH=./{site_packages_dir}/vtku3dexporter",
         ])
     elif not is_win:
         cmake_cmd.extend([
