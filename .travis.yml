@@ -1,0 +1,15 @@
+language: python
+os: osx
+python:
+  - "3.6"
+
+install:
+  - pip install -U pip pipenv
+  - pipenv install --dev
+
+script:
+  - pipenv run python build_u3d.py
+  - pipenv run python build_vtku3dexporter.py
+  - pipenv run python setup.py bdist_wheel
+  - pipenv run pip install dist/VTKU3DExporter*.whl
+  - pipenv run python src/u3d/Samples/SampleCode/test.py
