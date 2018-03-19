@@ -3,7 +3,9 @@ os: osx
 
 install:
   - brew install python
-  - which python3
+  - which python
+  - brew link --overwrite python
+  - which python
   - pip3 install --upgrade pip3
   - pip3 install pipenv
   - pipenv install --dev
