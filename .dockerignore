@@ -2,6 +2,8 @@ src/*
 .vscode
 work/*
 build/*
+build_u3d/*
+build_u3d_backup/*
 build_vtk/*
 dist/*
 __pycache__/*
