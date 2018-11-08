@@ -6,3 +6,4 @@ build_vtk/*
 dist/*
 __pycache__/*
 wheelhouse/*
+.git
