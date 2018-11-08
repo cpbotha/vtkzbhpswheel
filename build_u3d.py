@@ -55,6 +55,9 @@ def build_u3d(src="../../src/u3d",
         f"-DLIB_DESTINATION:PATH=./{site_packages_dir}/vtku3dexporter",
         f"-DPLUGIN_DESTINATION:PATH=./{site_packages_dir}/vtku3dexporter",
     ])
+
+    python_include_dir = setup_utils.get_python_include_dir()
+
     # rpath settings
     # https://github.com/jcfr/VTKPythonPackage/blob/b30ce84696a3ea0bcf42052646a28bdf854ac819/CMakeLists.txt#L175
     # https://cmake.org/Wiki/CMake_RPATH_handling
@@ -66,13 +69,19 @@ def build_u3d(src="../../src/u3d",
             f"-DZLIB_LIBRARY=\"{site_packages_abs}/vtk/libvtkzlib-8.1.dylib\"",
             f"-DPNG_LIBRARY=\"{site_packages_abs}/vtk/libvtkpng-8.1.dylib\"",
             f"-DJPEG_LIBRARY=\"{site_packages_abs}/vtk/libvtkjpeg-8.1.dylib\"",
-            f"-DZLIB_INCLUDE_DIR=\"{sys.prefix}/include/vtk-8.1;{sys.prefix}/include/vtk-8.1/vtkzlib\"",
-            f"-DPNG_PNG_INCLUDE_DIR=\"{sys.prefix}/include/vtk-8.1;{sys.prefix}/include/vtk-8.1/vtkpng\"",
-            f"-DJPEG_INCLUDE_DIR=\"{sys.prefix}/include/vtk-8.1;{sys.prefix}/include/vtk-8.1/vtkjpeg\"",
+            f"-DZLIB_INCLUDE_DIR=\"{python_include_dir}/vtk-8.1;{python_include_dir}/vtk-8.1/vtkzlib\"",
+            f"-DPNG_PNG_INCLUDE_DIR=\"{python_include_dir}/vtk-8.1;{python_include_dir}/vtk-8.1/vtkpng\"",
+            f"-DJPEG_INCLUDE_DIR=\"{python_include_dir}/vtk-8.1;{python_include_dir}/vtk-8.1/vtkjpeg\"",
         ])
     elif not is_win:
         cmake_cmd.extend([
             "-DCMAKE_INSTALL_RPATH:STRING=\$ORIGIN",
+            f"-DZLIB_LIBRARY=\"{site_packages_abs}/vtk/libvtkzlib-8.1.so\"",
+            f"-DPNG_LIBRARY=\"{site_packages_abs}/vtk/libvtkpng-8.1.so\"",
+            f"-DJPEG_LIBRARY=\"{site_packages_abs}/vtk/libvtkjpeg-8.1.so\"",
+            f"-DZLIB_INCLUDE_DIR=\"{python_include_dir}/vtk-8.1;{python_include_dir}/vtk-8.1/vtkzlib\"",
+            f"-DPNG_PNG_INCLUDE_DIR=\"{python_include_dir}/vtk-8.1;{python_include_dir}/vtk-8.1/vtkpng\"",
+            f"-DJPEG_INCLUDE_DIR=\"{python_include_dir}/vtk-8.1;{python_include_dir}/vtk-8.1/vtkjpeg\"",
         ])
     elif is_win:
         cmake_cmd.extend([
@@ -80,9 +89,9 @@ def build_u3d(src="../../src/u3d",
             f"-DZLIB_LIBRARY=\"{site_packages_abs}\\vtk\\vtkzlib-8.1.lib\"",
             f"-DPNG_LIBRARY=\"{site_packages_abs}\\vtk\\vtkpng-8.1.lib\"",
             f"-DJPEG_LIBRARY=\"{site_packages_abs}\\vtk\\vtkjpeg-8.1.lib\"",
-            f"-DZLIB_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkzlib\"",
-            f"-DPNG_PNG_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkpng\"",
-            f"-DJPEG_INCLUDE_DIR=\"{sys.prefix}\\Include\\vtk-8.1;{sys.prefix}\\Include\\vtk-8.1\\vtkjpeg\"",
+            f"-DZLIB_INCLUDE_DIR=\"{python_include_dir}\\vtk-8.1;{python_include_dir}\\vtk-8.1\\vtkzlib\"",
+            f"-DPNG_PNG_INCLUDE_DIR=\"{python_include_dir}\\vtk-8.1;{python_include_dir}\\vtk-8.1\\vtkpng\"",
+            f"-DJPEG_INCLUDE_DIR=\"{python_include_dir}\\vtk-8.1;{python_include_dir}\\vtk-8.1\\vtkjpeg\"",
         ])
 
     build_cmd.append(" ".join(cmake_cmd))
