@@ -1,19 +1,19 @@
 [[source]]
 
+url = "https://pypi.anaconda.org/clinicalgraphics/simple"
+verify_ssl = true
+name = "clinicalgraphics"
+
+[[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-[[source]]
-
-url = "https://pypi.anaconda.org/berend/simple"
-verify_ssl = true
-name = "berend"
 
 [packages]
 
-vtk = {file = "https://anaconda.org/korijn/VTK/8.1.0/download/VTK-8.1.0-cp36-cp36m-linux_x86_64.whl"}
-# vtk = {version="==8.1.0", index="berend"}
+vtk = {version="==8.1.0", index="clinicalgraphics"}
 
 [dev-packages]
 
@@ -24,3 +24,4 @@ wheel = {version="~=0.30.0", index="pypi"}
 auditwheel = {version="~=1.8.0", sys_platform="=='linux'", index="pypi"}
 delocate = {version="~=0.7.3", sys_platform="=='darwin'", index="pypi"}
 flake8 = {version="~=3.5.0", index="pypi"}
+"anaconda-client" = {version="~=1.2.2", index="pypi"}
