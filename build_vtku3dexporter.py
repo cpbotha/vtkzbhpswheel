@@ -97,7 +97,7 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
         f"-DCMAKE_BUILD_TYPE=Release",
         f"-DCMAKE_INSTALL_PREFIX:PATH={build}",
         f"-DCMAKE_PREFIX_PATH:PATH=\"{u3d_build_path};{u3d_build_site_packages_path}\"",
-        f"-DVTK_DIR={vtk_dir_path}",
+        f"-DVTK_DIR=\"{vtk_dir_path}\"",
         f"-DWRAP_PYTHON:BOOL=ON",
         f"-DINSTALL_PYTHON_MODULE_DIR:PATH=./{site_packages_dir}",
         # PythonLibs options https://cmake.org/cmake/help/latest/module/FindPythonLibs.html
