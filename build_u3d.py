@@ -9,7 +9,7 @@ is_win = (sys.platform == 'win32')
 is_darwin = (sys.platform == 'darwin')
 
 
-def clone_u3d(branch="0.3.3", dir="src/u3d"):
+def clone_u3d(branch="0.3.4", dir="src/u3d"):
     """Shallow-clone of U3D repo of tip of `branch` to `dir`."""
     if os.path.exists(dir):
         return
@@ -112,5 +112,5 @@ if __name__ == "__main__":
         build_utils.download_install_ninja_win()
         build_utils.download_install_cmake_win()
 
-    clone_u3d(branch='fix/build-wheel-improvements')
+    clone_u3d()
     build_u3d()
