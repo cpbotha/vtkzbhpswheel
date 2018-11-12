@@ -57,6 +57,7 @@ def build_u3d(src="../../src/u3d",
     ])
 
     python_include_dir = setup_utils.get_python_include_dir()
+    assert os.path.exists(python_include_dir)
 
     # rpath settings
     # https://github.com/jcfr/VTKPythonPackage/blob/b30ce84696a3ea0bcf42052646a28bdf854ac819/CMakeLists.txt#L175

@@ -166,9 +166,6 @@ def get_python_lib():
 def get_python_include_dir():
     if is_win:
         include_dir = f"{sys.prefix}\\include"
-    elif is_darwin:
-        version_string = f"{sys.version_info[0]}.{sys.version_info[1]}{sys.abiflags}"
-        include_dir = f"{sys.prefix}/include/python{version_string}"
     else:
         version_string = f"{sys.version_info[0]}.{sys.version_info[1]}{sys.abiflags}"
         include_dir = f"{sys.prefix}/include"
