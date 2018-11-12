@@ -13,7 +13,7 @@ Works for Linux!
 Prerequisite is a build of vtkwheel, next to this folder.
 
 ```
-pipenv install --dev
+pipenv install --dev --skip-lock
 pipenv run python build_u3d.py
 pipenv run python build_vtku3dexporter.py
 pipenv run python setup.py bdist_wheel
