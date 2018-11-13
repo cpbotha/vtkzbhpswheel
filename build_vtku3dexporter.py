@@ -114,6 +114,7 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
             "-DCMAKE_INSTALL_RPATH:STRING=@loader_path",
             "-DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE",
             "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'",
+            "-DCMAKE_CXX_FLAGS=\"-isystem /Library/Frameworks/Python.framework/Versions/3.6/include/python3.6m\"",
             f"-DLIB_DESTINATION:PATH=./{site_packages_dir}/vtku3dexporter",
         ])
     elif not is_win:
@@ -139,5 +140,5 @@ if __name__ == "__main__":
         build_utils.download_install_cmake_win()
 
     generate_libpython()
-    clone_u3d(branch='fix/build-wheel-improvements')
+    clone_u3d()
     build_vtku3dexporter()
