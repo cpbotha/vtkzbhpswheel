@@ -20,7 +20,7 @@ data_files = get_data_files(build_dir, data_dirs)
 
 setup(
     name='VTKU3DExporter',
-    version='0.3.4',
+    version='0.3.5',
     description='VTKU3DExporter makes it possible to export VTK scenes as U3D files for making 3D PDFs',
     author='U3D Community',
     url='https://github.com/ClinicalGraphics/u3d',

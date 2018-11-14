@@ -9,7 +9,7 @@ is_win = (sys.platform == 'win32')
 is_darwin = (sys.platform == 'darwin')
 
 
-def clone_u3d(branch="0.3.4", dir="src/u3d"):
+def clone_u3d(branch="0.3.5", dir="src/u3d"):
     """Shallow-clone of U3D repo of tip of `branch` to `dir`."""
     if os.path.exists(dir):
         return
