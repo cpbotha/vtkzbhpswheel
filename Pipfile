@@ -12,8 +12,10 @@ name = "pypi"
 
 
 [packages]
-
-vtk = {version="==8.1.0", index="clinicalgraphics"}
+# For some reason, pipenv install the vtk from pypi instead of clinicalgraphics in docker.
+# The dockerfile now contains a manual command to install the wheel from the clinicalgraphics
+# repository.
+vtk = {version="==8.1.0", index="clinicalgraphics", sys_platform="!='linux'"}
 
 [dev-packages]
 
@@ -25,3 +27,6 @@ auditwheel = {version="~=1.8.0", sys_platform="=='linux'", index="pypi"}
 delocate = {version="~=0.7.3", sys_platform="=='darwin'", index="pypi"}
 flake8 = {version="~=3.5.0", index="pypi"}
 "anaconda-client" = {version="~=1.2.2", index="pypi"}
+
+[requires]
+python_version = "3.6"

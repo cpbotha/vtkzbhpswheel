@@ -8,6 +8,7 @@ RUN pip install pip pipenv setuptools wheel --upgrade
 
 COPY ./Pipfile .
 RUN pipenv install --dev --system --skip-lock
+RUN pip install -i https://pypi.anaconda.org/clinicalgraphics/simple vtk
 
 RUN yum install -y libXt-devel mesa-libGL-devel
 COPY ./setup_utils.py .
