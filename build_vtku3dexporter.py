@@ -67,7 +67,12 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
         shutil.copytree('build_u3d', 'build_u3d_backup')
 
     if not is_win:
-        # link to the real pythonXY.lib file
+        # on linux/macOS, generate an empty libpython file to link against for PEP513 compliance
+        os.makedirs(work, exist_ok=True)
+        subprocess.check_call(f"touch {work}/libpython.fake", shell=True)
+        python_library = os.path.abspath(os.path.join(work, "libpython.fake"))
+    else:
+        # on Windows that is not supported and we need the real pythonXY.lib file
         python_library = setup_utils.get_python_lib()
 
     python_include_dir = setup_utils.get_python_include_dir()
