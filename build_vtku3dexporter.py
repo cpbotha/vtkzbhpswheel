@@ -66,6 +66,15 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
         print('> Creating backup of build_u3d folder at build_u3d_backup')
         shutil.copytree('build_u3d', 'build_u3d_backup')
 
+    if not is_win:
+        # on linux/macOS, generate an empty libpython file to link against for PEP513 compliance
+        os.makedirs(work, exist_ok=True)
+        subprocess.check_call(f"touch {work}/libpython.fake", shell=True)
+        python_library = os.path.abspath(os.path.join(work, "libpython.fake"))
+    else:
+        # on Windows that is not supported and we need the real pythonXY.lib file
+        python_library = setup_utils.get_python_lib()
+
     python_include_dir = setup_utils.get_python_include_dir()
     site_packages_abs = setup_utils.get_site_packages_dir()
     site_packages_dir = os.path.relpath(site_packages_abs, sys.prefix)
@@ -102,6 +111,7 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
         f"-DINSTALL_PYTHON_MODULE_DIR:PATH=./{site_packages_dir}",
         # PythonLibs options https://cmake.org/cmake/help/latest/module/FindPythonLibs.html
         f"-DPYTHON_INCLUDE_DIR:PATH=\"{python_include_dir}\"",
+        f"-DPYTHON_LIBRARY:FILEPATH=\"{python_library}\"",
         # PythonInterp options https://cmake.org/cmake/help/latest/module/FindPythonInterp.html
         f"-DPYTHON_EXECUTABLE:FILEPATH=\"{sys.executable}\"",
     ])
