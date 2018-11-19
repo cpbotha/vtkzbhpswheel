@@ -1,7 +1,6 @@
 import subprocess
 import os
 import sys
-import build_utils
 import setup_utils
 
 
@@ -107,10 +106,5 @@ def build_u3d(src="../../src/u3d",
 
 
 if __name__ == "__main__":
-    if is_win:
-        # could not get it to work with the version of ninja that is on pypi, so put it on the current path
-        build_utils.download_install_ninja_win()
-        build_utils.download_install_cmake_win()
-
     clone_u3d()
     build_u3d()

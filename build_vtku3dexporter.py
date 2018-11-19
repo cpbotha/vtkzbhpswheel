@@ -4,7 +4,6 @@ import shutil
 import sys
 
 from build_u3d import clone_u3d
-import build_utils
 import setup_utils
 
 
@@ -144,11 +143,6 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
 
 
 if __name__ == "__main__":
-    if is_win:
-        # could not get it to work with the version of ninja that is on pypi, so put it on the current path
-        build_utils.download_install_ninja_win()
-        build_utils.download_install_cmake_win()
-
     generate_libpython()
     clone_u3d()
     build_vtku3dexporter()
