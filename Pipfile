@@ -1,24 +1,19 @@
 [[source]]
-
 url = "https://pypi.anaconda.org/clinicalgraphics/simple"
 verify_ssl = true
 name = "clinicalgraphics"
 
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-# For some reason, pipenv install the vtk from pypi instead of clinicalgraphics in docker.
-# The dockerfile now contains a manual command to install the wheel from the clinicalgraphics
-# repository.
-vtk = {version="==8.1.0", index="clinicalgraphics", sys_platform="!='linux'"}
+"vtk-linux" = {file = "https://anaconda.org/clinicalgraphics/vtk/8.1.0/download/VTK-8.1.0-cp36-cp36m-linux_x86_64.whl", sys_platform="=='linux'"}
+"vtk-darwin" = {file = "https://anaconda.org/clinicalgraphics/vtk/8.1.0/download/VTK-8.1.0-cp36-cp36m-macosx_10_13_x86_64.whl", sys_platform="=='darwin'"}
+"vtk-win32" = {file = "https://anaconda.org/clinicalgraphics/vtk/8.1.0/download/VTK-8.1.0-cp36-cp36m-win_amd64.whl", sys_platform="=='win32'"}
 
 [dev-packages]
-
 cmake = {version="~=0.9.0", index="pypi"}
 ninja = {version="~=1.7.2.post2", index="pypi"}
 setuptools = {version="~=38.5.1", index="pypi"}
