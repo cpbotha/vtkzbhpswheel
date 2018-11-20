@@ -155,7 +155,7 @@ def get_python_lib():
         )
     elif is_darwin:
         version_string = f"{sys.version_info[0]}.{sys.version_info[1]}"
-        python_lib = f"{sys.prefix}/lib/x86_64-linux-gnu/libpython{version_string}.dylib"
+        python_lib = f"/Library/Frameworks/Python.framework/Versions/{version_string}/lib/libpython{version_string}.dylib"
     else:
         version_string = f"{sys.version_info[0]}.{sys.version_info[1]}{sys.abiflags}"
         python_lib = f"/usr/lib/x86_64-linux-gnu/libpython{version_string}.so.1.0"

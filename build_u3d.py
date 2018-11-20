@@ -1,7 +1,6 @@
 import subprocess
 import os
 import sys
-import build_utils
 import setup_utils
 
 
@@ -9,7 +8,7 @@ is_win = (sys.platform == 'win32')
 is_darwin = (sys.platform == 'darwin')
 
 
-def clone_u3d(branch="0.3.5", dir="src/u3d"):
+def clone_u3d(branch="dont-link-libpython", dir="src/u3d"):
     """Shallow-clone of U3D repo of tip of `branch` to `dir`."""
     if os.path.exists(dir):
         return
@@ -107,10 +106,5 @@ def build_u3d(src="../../src/u3d",
 
 
 if __name__ == "__main__":
-    if is_win:
-        # could not get it to work with the version of ninja that is on pypi, so put it on the current path
-        build_utils.download_install_ninja_win()
-        build_utils.download_install_cmake_win()
-
     clone_u3d()
     build_u3d()

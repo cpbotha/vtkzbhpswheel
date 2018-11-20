@@ -1,10 +1,10 @@
 import subprocess
 import os
 import shutil
+import re
 import sys
 
 from build_u3d import clone_u3d
-import build_utils
 import setup_utils
 
 
@@ -54,6 +54,27 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
                          install_dev=True,
                          clean_cmake_cache=True):
     """Build and install VTKU3DExporter using CMake."""
+    if is_win:
+        # Read out the venv and adjust some paths
+        regex = r"^(.*?)(;?[A-Z]:/Users.*?)([\";].*)$"
+        subst = "\\1\\3"
+
+        files = [
+            f'{sys.prefix}\\Lib\\cmake\\vtk-8.1\\Modules\\vtkPython.cmake',
+            f'{sys.prefix}\\Lib\\cmake\\vtk-8.1\\VTKConfig.cmake',
+            f'{sys.prefix}\\Lib\\cmake\\vtk-8.1\\VTKTargets.cmake',
+        ]
+        
+        for file in files:
+            print(f'> Replacing hard-coded paths in {file}')
+            with open(file, mode='r') as fh:
+                # Replace hardcoded paths
+                content = fh.read()
+                content = re.sub(regex, subst, content, flags=re.MULTILINE | re.IGNORECASE)
+                
+            with open(file, mode='w') as fh:
+                # Replace hardcoded paths
+                fh.write(content)
 
     assert os.path.isdir('build_u3d') or os.path.isdir('build_u3d_backup')
 
@@ -65,6 +86,15 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
     else:
         print('> Creating backup of build_u3d folder at build_u3d_backup')
         shutil.copytree('build_u3d', 'build_u3d_backup')
+
+    if not is_win and not is_darwin:
+        # on linux/macOS, generate an empty libpython file to link against for PEP513 compliance
+        os.makedirs(work, exist_ok=True)
+        subprocess.check_call(f"touch {work}/libpython.fake", shell=True)
+        python_library = os.path.abspath(os.path.join(work, "libpython.fake"))
+    else:
+        # on Windows that is not supported and we need the real pythonXY.lib file
+        python_library = setup_utils.get_python_lib()
 
     python_include_dir = setup_utils.get_python_include_dir()
     site_packages_abs = setup_utils.get_site_packages_dir()
@@ -102,6 +132,7 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
         f"-DINSTALL_PYTHON_MODULE_DIR:PATH=./{site_packages_dir}",
         # PythonLibs options https://cmake.org/cmake/help/latest/module/FindPythonLibs.html
         f"-DPYTHON_INCLUDE_DIR:PATH=\"{python_include_dir}\"",
+        f"-DPYTHON_LIBRARY:FILEPATH=\"{python_library}\"",
         # PythonInterp options https://cmake.org/cmake/help/latest/module/FindPythonInterp.html
         f"-DPYTHON_EXECUTABLE:FILEPATH=\"{sys.executable}\"",
     ])
@@ -134,11 +165,6 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
 
 
 if __name__ == "__main__":
-    if is_win:
-        # could not get it to work with the version of ninja that is on pypi, so put it on the current path
-        build_utils.download_install_ninja_win()
-        build_utils.download_install_cmake_win()
-
     generate_libpython()
     clone_u3d()
     build_vtku3dexporter()
