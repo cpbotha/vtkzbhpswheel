@@ -1,6 +1,7 @@
 import subprocess
 import os
 import shutil
+import re
 import sys
 
 from build_u3d import clone_u3d
@@ -53,6 +54,27 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
                          install_dev=True,
                          clean_cmake_cache=True):
     """Build and install VTKU3DExporter using CMake."""
+    if is_win:
+        # Read out the venv and adjust some paths
+        regex = r"^(.*?)(;?[A-Z]:/Users.*?)([\";].*)$"
+        subst = "\\1\\3"
+
+        files = [
+            f'{sys.prefix}\\Lib\\cmake\\vtk-8.1\\Modules\\vtkPython.cmake',
+            f'{sys.prefix}\\Lib\\cmake\\vtk-8.1\\VTKConfig.cmake',
+            f'{sys.prefix}\\Lib\\cmake\\vtk-8.1\\VTKTargets.cmake',
+        ]
+        
+        for file in files:
+            print(f'> Replacing hard-coded paths in {file}')
+            with open(file, mode='r') as fh:
+                # Replace hardcoded paths
+                content = fh.read()
+                content = re.sub(regex, subst, content, flags=re.MULTILINE | re.IGNORECASE)
+                
+            with open(file, mode='w') as fh:
+                # Replace hardcoded paths
+                fh.write(content)
 
     assert os.path.isdir('build_u3d') or os.path.isdir('build_u3d_backup')
 
