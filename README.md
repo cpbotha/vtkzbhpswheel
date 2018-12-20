@@ -20,3 +20,17 @@ pipenv run python setup.py bdist_wheel
 pipenv run pip install dist/VTKU3DExporter-*.whl
 pipenv run python src/u3d/Samples/SampleCode/test.py
 ```
+
+# Non-default Python install? Pyenv? 
+
+Getting this error?
+```
+Library not loaded: /Library/Frameworks/Python.framework/Versions/3.6/Python
+```
+
+This library was compiled expecting the framework on this location. You can work
+around this by symlinking here. For example, using pyenv:
+
+```
+sudo ln -s ~/.pyenv/versions/3.6.7/Python.framework /Library/Frameworks/Python.framework
+```
