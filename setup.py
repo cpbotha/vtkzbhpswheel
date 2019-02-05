@@ -30,7 +30,7 @@ setup(
     include_package_data=True,
     data_files=data_files,
     install_requires=[
-        'vtk',
+        "vtk ==8.1.0",
     ],
     distclass=BinaryDistribution,
 )
