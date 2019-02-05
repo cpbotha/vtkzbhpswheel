@@ -11,7 +11,6 @@ RUN pipenv install --dev --system --skip-lock
 
 RUN yum install -y libXt-devel mesa-libGL-devel
 COPY ./setup_utils.py .
-COPY ./build_utils.py .
 COPY ./build_u3d.py .
 COPY ./build_vtku3dexporter.py .
 RUN python build_u3d.py
