@@ -1,14 +1,20 @@
 # Instructions
 
+## Linux
+
 ```
 docker build . -t vtkwheel:manylinux1_x86_64_cp36
 docker run --rm -v $(pwd)/dist:/io/dist vtkwheel:manylinux1_x86_64_cp36
 ```
 
-Works for Linux!
+## macOS and Windows
 
+### Windows prep: Install Build Tools for Visual Studio 2017
 
-## Instructions for macOS/Win
+- Download from [this link](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=15).
+- Run the installer and select the "Visual C++ build tools" workload.
+
+### mac or Win: Do the build
 
 Prerequisite is a build of vtkwheel, next to this folder.
 
