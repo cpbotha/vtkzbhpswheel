@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-vtk-linux = {file = "https://anaconda.org/clinicalgraphics/vtk/8.1.0/download/VTK-8.1.0-cp36-cp36m-linux_x86_64.whl", sys_platform="=='linux'"}
-vtk-darwin = {file = "https://anaconda.org/clinicalgraphics/vtk/8.1.0/download/VTK-8.1.0-cp36-cp36m-macosx_10_13_x86_64.whl", sys_platform="=='darwin'"}
-vtk-win32 = {file = "https://anaconda.org/clinicalgraphics/vtk/8.1.0/download/VTK-8.1.0-cp36-cp36m-win_amd64.whl", sys_platform="=='win32'"}
+vtk-linux = {file = "https://anaconda.org/clinicalgraphics/vtk/8.1.0/download/VTK-8.1.0-cp36-cp36m-linux_x86_64.whl",sys_platform = "=='linux'"}
+vtk-darwin = {file = "https://anaconda.org/clinicalgraphics/vtk/8.1.0/download/VTK-8.1.0-cp36-cp36m-macosx_10_13_x86_64.whl",sys_platform = "=='darwin'"}
+vtk-win32 = {file = "https://anaconda.org/clinicalgraphics/vtk/8.1.0/download/VTK-8.1.0-cp36-cp36m-win_amd64.whl",sys_platform = "=='win32'"}
 
 [dev-packages]
 cmake = "*"
@@ -14,6 +14,7 @@ ninja = "*"
 setuptools = "*"
 wheel = "==0.30.0"
 anaconda-client = "*"
+yapf = "*"
 
 [requires]
 python_version = "3.6"
