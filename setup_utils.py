@@ -6,6 +6,7 @@ from glob import iglob
 import inspect
 import os
 import sys
+import sysconfig
 
 
 is_win = (sys.platform == 'win32')
@@ -164,12 +165,7 @@ def get_python_lib():
 
 
 def get_python_include_dir():
-    if is_win:
-        include_dir = f"{sys.prefix}\\include"
-    else:
-        version_string = f"{sys.version_info[0]}.{sys.version_info[1]}{sys.abiflags}"
-        include_dir = f"{sys.prefix}/include"
-
+    include_dir = sysconfig.get_path('include')
     assert exists(include_dir)
     return include_dir
 
