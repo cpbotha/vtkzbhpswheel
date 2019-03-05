@@ -46,14 +46,23 @@ def generate_libpython(filepath="work/vtk/libpython.notreally"):
     return filepath
 
 
-def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
-                         work="work/vtku3dexporter",
-                         build="../../build_u3d",
-                         generator="Ninja",
-                         install_cmd="ninja install",
-                         install_dev=True,
-                         clean_cmake_cache=True):
-    """Build and install VTKU3DExporter using CMake."""
+def build_vtkzbhps(src="../vtkzbhps",
+                   work="../vtkzbhps-work",
+                   build="../vtkzbhps-build",
+                   generator="Ninja",
+                   install_cmd="ninja install",
+                   install_dev=True,
+                   clean_cmake_cache=True):
+    """Build and install VTKU3DExporter using CMake.
+    
+    Parameters
+    ----------
+    work
+        cmake build directory
+    build
+        where we get cmake to install its output
+    """
+
     if is_win:
         # Read out the venv and adjust some paths
         regex = r"^(.*?)(;?[A-Z]:/Users.*?)([\";].*)$"
@@ -64,37 +73,45 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
             f'{sys.prefix}\\Lib\\cmake\\vtk-8.1\\VTKConfig.cmake',
             f'{sys.prefix}\\Lib\\cmake\\vtk-8.1\\VTKTargets.cmake',
         ]
-        
+
         for file in files:
             print(f'> Replacing hard-coded paths in {file}')
             with open(file, mode='r') as fh:
                 # Replace hardcoded paths
                 content = fh.read()
                 content = re.sub(regex, subst, content, flags=re.MULTILINE | re.IGNORECASE)
-                
+
             with open(file, mode='w') as fh:
                 # Replace hardcoded paths
                 fh.write(content)
 
-    assert os.path.isdir('build_u3d') or os.path.isdir('build_u3d_backup')
+    if False:
+        assert os.path.isdir('build_u3d') or os.path.isdir('build_u3d_backup')
 
-    if os.path.isdir('build_u3d_backup'):
-        print('> Restoring backup at build_u3d_backup to build_u3d')
-        shutil.rmtree('build_u3d', ignore_errors=True)
-        assert not os.path.isdir('build_u3d')
-        shutil.copytree('build_u3d_backup', 'build_u3d')
-    else:
-        print('> Creating backup of build_u3d folder at build_u3d_backup')
-        shutil.copytree('build_u3d', 'build_u3d_backup')
+        if os.path.isdir('build_u3d_backup'):
+            print('> Restoring backup at build_u3d_backup to build_u3d')
+            shutil.rmtree('build_u3d', ignore_errors=True)
+            assert not os.path.isdir('build_u3d')
+            shutil.copytree('build_u3d_backup', 'build_u3d')
+        else:
+            print('> Creating backup of build_u3d folder at build_u3d_backup')
+            shutil.copytree('build_u3d', 'build_u3d_backup')
 
-    if not is_win and not is_darwin:
-        # on linux/macOS, generate an empty libpython file to link against for PEP513 compliance
-        os.makedirs(work, exist_ok=True)
-        subprocess.check_call(f"touch {work}/libpython.fake", shell=True)
-        python_library = os.path.abspath(os.path.join(work, "libpython.fake"))
-    else:
-        # on Windows that is not supported and we need the real pythonXY.lib file
+        if not is_win and not is_darwin:
+            # on linux/macOS, generate an empty libpython file to link against for PEP513 compliance
+            os.makedirs(work, exist_ok=True)
+            subprocess.check_call(f"touch {work}/libpython.fake", shell=True)
+            python_library = os.path.abspath(os.path.join(work, "libpython.fake"))
+        else:
+            # on Windows that is not supported and we need the real pythonXY.lib file
+            python_library = setup_utils.get_python_lib()
+
+    # on windows, we have to specify the python lib
+    # on mac and linux, vtkzbhps's use of vtk_target_link_libraries_with_dynamic_lookup() means we don't
+    if is_win:
         python_library = setup_utils.get_python_lib()
+    else:
+        python_library = None
 
     python_include_dir = setup_utils.get_python_include_dir()
     site_packages_abs = setup_utils.get_site_packages_dir()
@@ -106,9 +123,6 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
         vcvarsall_cmd = f"\"{setup_utils.get_vcvarsall()}\" amd64"
         build_cmd.append(vcvarsall_cmd)
 
-    # Help Cmake find the u3d lib
-    u3d_build_path = os.path.abspath('build_u3d')
-    u3d_build_site_packages_path = os.path.abspath(f'build_u3d/{site_packages_dir}/vtku3dexporter')
     if is_win:
         vtk_dir_path = f'{sys.prefix}\\Lib\\cmake\\vtk-8.1'
     else:
@@ -126,32 +140,39 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
         f"-G \"{generator}\"",
         f"-DCMAKE_BUILD_TYPE=Release",
         f"-DCMAKE_INSTALL_PREFIX:PATH={build}",
-        f"-DCMAKE_PREFIX_PATH:PATH=\"{u3d_build_path};{u3d_build_site_packages_path}\"",
         f"-DVTK_DIR=\"{vtk_dir_path}\"",
         f"-DWRAP_PYTHON:BOOL=ON",
         f"-DINSTALL_PYTHON_MODULE_DIR:PATH=./{site_packages_dir}",
         # PythonLibs options https://cmake.org/cmake/help/latest/module/FindPythonLibs.html
         f"-DPYTHON_INCLUDE_DIR:PATH=\"{python_include_dir}\"",
-        f"-DPYTHON_LIBRARY:FILEPATH=\"{python_library}\"",
+        f"-DPYTHON_LIBRARY:FILEPATH=\"{python_library}\"" if python_library is not None else "",
         # PythonInterp options https://cmake.org/cmake/help/latest/module/FindPythonInterp.html
         f"-DPYTHON_EXECUTABLE:FILEPATH=\"{sys.executable}\"",
     ])
-    # rpath settings
-    # https://github.com/jcfr/VTKPythonPackage/blob/b30ce84696a3ea0bcf42052646a28bdf854ac819/CMakeLists.txt#L175
-    # https://cmake.org/Wiki/CMake_RPATH_handling
+
     if is_darwin:
         cmake_cmd.extend([
-            "-DCMAKE_INSTALL_NAME_DIR:STRING=\"@rpath;@rpath/../vtk\"",
-            "-DCMAKE_INSTALL_RPATH:STRING=@loader_path",
-            "-DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE",
-            "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'",
-            "-DCMAKE_CXX_FLAGS=\"-isystem /Library/Frameworks/Python.framework/Versions/3.6/include/python3.6m\"",
-            f"-DLIB_DESTINATION:PATH=./{site_packages_dir}/vtku3dexporter",
+            "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'"
         ])
-    elif not is_win:
-        cmake_cmd.extend([
-            "-DCMAKE_INSTALL_RPATH:STRING=\$ORIGIN",
-        ])
+
+    # vtkzbhps has its own rpath settings
+    if False:
+        # rpath settings
+        # https://github.com/jcfr/VTKPythonPackage/blob/b30ce84696a3ea0bcf42052646a28bdf854ac819/CMakeLists.txt#L175
+        # https://cmake.org/Wiki/CMake_RPATH_handling
+        if is_darwin:
+            cmake_cmd.extend([
+                "-DCMAKE_INSTALL_NAME_DIR:STRING=\"@rpath;@rpath/../vtk\"",
+                "-DCMAKE_INSTALL_RPATH:STRING=@loader_path",
+                "-DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE",
+                "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'",
+                "-DCMAKE_CXX_FLAGS=\"-isystem /Library/Frameworks/Python.framework/Versions/3.6/include/python3.6m\"",
+                f"-DLIB_DESTINATION:PATH=./{site_packages_dir}/vtku3dexporter",
+            ])
+        elif not is_win:
+            cmake_cmd.extend([
+                "-DCMAKE_INSTALL_RPATH:STRING=\$ORIGIN",
+            ])
 
     build_cmd.append(" ".join(cmake_cmd))
     build_cmd.append(install_cmd)
@@ -165,6 +186,6 @@ def build_vtku3dexporter(src="../../src/u3d/Samples/SampleCode",
 
 
 if __name__ == "__main__":
-    generate_libpython()
-    clone_u3d()
-    build_vtku3dexporter()
+    # vtkzbhps does not need fake python
+    #generate_libpython()
+    build_vtkzbhps()
