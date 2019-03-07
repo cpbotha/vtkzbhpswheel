@@ -4,7 +4,6 @@ import shutil
 import re
 import sys
 
-from build_u3d import clone_u3d
 import setup_utils
 
 
@@ -54,7 +53,7 @@ def build_vtkzbhps(src="../vtkzbhps",
                    install_dev=True,
                    clean_cmake_cache=True):
     """Build and install VTKU3DExporter using CMake.
-    
+
     Parameters
     ----------
     work
@@ -84,27 +83,6 @@ def build_vtkzbhps(src="../vtkzbhps",
             with open(file, mode='w') as fh:
                 # Replace hardcoded paths
                 fh.write(content)
-
-    if False:
-        assert os.path.isdir('build_u3d') or os.path.isdir('build_u3d_backup')
-
-        if os.path.isdir('build_u3d_backup'):
-            print('> Restoring backup at build_u3d_backup to build_u3d')
-            shutil.rmtree('build_u3d', ignore_errors=True)
-            assert not os.path.isdir('build_u3d')
-            shutil.copytree('build_u3d_backup', 'build_u3d')
-        else:
-            print('> Creating backup of build_u3d folder at build_u3d_backup')
-            shutil.copytree('build_u3d', 'build_u3d_backup')
-
-        if not is_win and not is_darwin:
-            # on linux/macOS, generate an empty libpython file to link against for PEP513 compliance
-            os.makedirs(work, exist_ok=True)
-            subprocess.check_call(f"touch {work}/libpython.fake", shell=True)
-            python_library = os.path.abspath(os.path.join(work, "libpython.fake"))
-        else:
-            # on Windows that is not supported and we need the real pythonXY.lib file
-            python_library = setup_utils.get_python_lib()
 
     # on windows, we have to specify the python lib
     # on mac and linux, vtkzbhps's use of vtk_target_link_libraries_with_dynamic_lookup() means we don't
@@ -154,31 +132,22 @@ def build_vtkzbhps(src="../vtkzbhps",
         cmake_cmd.extend([
             "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'"
         ])
-
-    # vtkzbhps has its own rpath settings
-    if False:
-        # rpath settings
-        # https://github.com/jcfr/VTKPythonPackage/blob/b30ce84696a3ea0bcf42052646a28bdf854ac819/CMakeLists.txt#L175
-        # https://cmake.org/Wiki/CMake_RPATH_handling
-        if is_darwin:
-            cmake_cmd.extend([
-                "-DCMAKE_INSTALL_NAME_DIR:STRING=\"@rpath;@rpath/../vtk\"",
-                "-DCMAKE_INSTALL_RPATH:STRING=@loader_path",
-                "-DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE",
-                "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'",
-                "-DCMAKE_CXX_FLAGS=\"-isystem /Library/Frameworks/Python.framework/Versions/3.6/include/python3.6m\"",
-                f"-DLIB_DESTINATION:PATH=./{site_packages_dir}/vtku3dexporter",
-            ])
-        elif not is_win:
-            cmake_cmd.extend([
-                "-DCMAKE_INSTALL_RPATH:STRING=\$ORIGIN",
-            ])
+    elif is_win:
+        # following the lead of the VTK wheel, we want:
+        # - inst/Scripts to contain EXEs and DLLs: so we set BIN_DESTINATION
+        # - inst/Lib/site-packages/vtkzbhps/ to contain py-files, PYDs and libs
+        cmake_cmd.extend([
+            # relative to CMAKE_INSTALL_PREFIX
+            f"-DBIN_DESTINATION:PATH=Scripts",
+            # libs and archives go here
+            f"-DLIB_DESTINATION:PATH={site_packages_dir}/vtkzbhps",
+        ])
 
     build_cmd.append(" ".join(cmake_cmd))
     build_cmd.append(install_cmd)
 
     build_cmd = " && ".join(build_cmd)
-    print(f"> configuring, building and installing VTKU3DExporter")
+    print(f"> configuring, building and installing VTKZBHPS")
     print(f"> {build_cmd}")
 
     os.makedirs(work, exist_ok=True)
@@ -187,5 +156,5 @@ def build_vtkzbhps(src="../vtkzbhps",
 
 if __name__ == "__main__":
     # vtkzbhps does not need fake python
-    #generate_libpython()
+    # generate_libpython()
     build_vtkzbhps()
