@@ -15,6 +15,7 @@ setuptools = "*"
 wheel = "==0.30.0"
 anaconda-client = "*"
 yapf = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.6"
