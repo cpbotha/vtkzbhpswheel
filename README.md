@@ -1,3 +1,5 @@
+All of this is derived from the [vtku3dexporterwheel](https://github.com/berendkleinhaneveld/vtku3dexporterwheel) thank you!
+
 # Instructions
 
 ## Linux
@@ -11,8 +13,8 @@ docker run --rm -v $(pwd)/dist:/io/dist vtkwheel:manylinux1_x86_64_cp36
 
 ### Windows prep: Install Build Tools for Visual Studio 2017
 
-- Download from [this link](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=15).
-- Run the installer and select the "Visual C++ build tools" workload.
+- Download the installer from [this link](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=15) and run it. 
+- Select the "Visual C++ build tools" workload, and check the optional "Visual C++ ATL for x86 and x64" module.
 
 ### mac or Win: Do the build
 
@@ -20,11 +22,10 @@ Prerequisite is a build of vtkwheel, next to this folder.
 
 ```
 pipenv install --dev --skip-lock
-pipenv run python build_u3d.py
-pipenv run python build_vtku3dexporter.py
+pipenv run python build_vtkzbhps.py
 pipenv run python setup.py bdist_wheel
-pipenv run pip install dist/VTKU3DExporter-*.whl
-pipenv run python src/u3d/Samples/SampleCode/test.py
+pipenv run pip install dist/vtkzbhps-*.whl
+pipenv run pytest
 ```
 
 # Non-default Python install? Pyenv? 
