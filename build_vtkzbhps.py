@@ -130,7 +130,10 @@ def build_vtkzbhps(src="../vtkzbhps",
 
     if is_darwin:
         cmake_cmd.extend([
-            "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'"
+            "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'",
+            # on mac, we want the dylibs also in the site-packages dir,
+            # following vtk wheel's lead
+            f"-DLIB_DESTINATION:PATH={site_packages_dir}/vtkzbhps",
         ])
     elif is_win:
         # following the lead of the VTK wheel, we want:
