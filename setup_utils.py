@@ -1,5 +1,6 @@
 from itertools import chain
 from collections import defaultdict
+from distutils import sysconfig as du_sysconfig
 from os.path import isfile, relpath, dirname, splitext, join, exists, expandvars
 from setuptools.dist import Distribution
 from glob import iglob
@@ -149,17 +150,20 @@ def get_python_lib():
     """
     Returns absolute path to libpythonX.YZ.so on linux, libpythonX.Y.dylib on macOS or pythonXY.lib on windows.
     """
+
+    # this will give e.g. libpython3.6m.so.1.0 on Linux or libpython3.6m.dylib on mac; nothing on Windows
+    instsoname = du_sysconfig.get_config_var('INSTSONAME')
+    libdir = du_sysconfig.get_config_var('LIBDIR')
+
     if is_win:
-        version_string = f"{sys.version_info[0]}{sys.version_info[1]}"
-        python_lib = expandvars(
-            f"%LOCALAPPDATA%\\Programs\\Python\\Python{version_string}\\libs\\python{version_string}.lib"
-        )
+        version_string = du_sysconfig.get_config_var('VERSION')
+        python_lib = os.path.join(libdir, f"python{version_string}.lib")
     elif is_darwin:
-        version_string = f"{sys.version_info[0]}.{sys.version_info[1]}"
-        python_lib = f"/Library/Frameworks/Python.framework/Versions/{version_string}/lib/libpython{version_string}.dylib"
+        python_lib = os.path.join(libdir, instsoname)
     else:
-        version_string = f"{sys.version_info[0]}.{sys.version_info[1]}{sys.abiflags}"
-        python_lib = f"/usr/lib/x86_64-linux-gnu/libpython{version_string}.so.1.0"
+        # this is e.g. x86_64-linux-gnu
+        multiarch = du_sysconfig.get_config_var('MULTIARCH')
+        python_lib = os.path.join(libdir, multiarch, instsoname)
     assert exists(python_lib)
     return python_lib
 
