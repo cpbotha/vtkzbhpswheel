@@ -18,12 +18,12 @@ else:
 package_dir = {'': site_packages_dir}
 packages = find_packages(site_packages_dir)
 package_data = get_package_data(packages, package_dir=package_dir)
-# this should pick up the DLLs and binaries from Scripts
+# this should pick up the DLLs and binaries from Scripts (windows) / bin (Linux and mac)
 data_files = get_data_files(build_dir, data_dirs)
 
 setup(
     name='vtkzbhps',
-    version='1.8.2',
+    version='1.8.3',
     description='Proprietary code for the HPS application',
     author='ZB',
     url='https://github.com/ClinicalGraphics/u3d',
