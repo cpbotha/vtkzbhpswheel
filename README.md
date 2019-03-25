@@ -22,6 +22,7 @@ Prerequisite is a build of vtkwheel, next to this folder.
 
 ```
 pipenv install --dev --skip-lock
+rm -rf ../vtkzbhps-work ../vtkzbhps-build build/ dist/
 pipenv run python build_vtkzbhps.py
 pipenv run python setup.py bdist_wheel
 pipenv run pip install dist/vtkzbhps-*.whl
