@@ -29,6 +29,12 @@ pipenv run pip install dist/vtkzbhps-*.whl
 pipenv run pytest
 ```
 
+## Upload packages to anaconda
+
+```
+anaconda upload -u clinicalgraphics dist/the_new_wheel.whl
+```
+
 # Non-default Python install? Pyenv? 
 
 Getting this error?
