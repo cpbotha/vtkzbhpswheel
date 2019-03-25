@@ -128,14 +128,7 @@ def build_vtkzbhps(src="../vtkzbhps",
         f"-DPYTHON_EXECUTABLE:FILEPATH=\"{sys.executable}\"",
     ])
 
-    if is_darwin:
-        cmake_cmd.extend([
-            "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'",
-            # on mac, we want the dylibs also in the site-packages dir,
-            # following vtk wheel's lead
-            f"-DLIB_DESTINATION:PATH={site_packages_dir}/vtkzbhps",
-        ])
-    elif is_win:
+    if is_win:
         # following the lead of the VTK wheel, we want:
         # - inst/Scripts to contain EXEs and DLLs: so we set BIN_DESTINATION
         # - inst/Lib/site-packages/vtkzbhps/ to contain py-files, PYDs and libs
@@ -144,6 +137,15 @@ def build_vtkzbhps(src="../vtkzbhps",
             f"-DBIN_DESTINATION:PATH=Scripts",
             # libs and archives go here
             f"-DLIB_DESTINATION:PATH={site_packages_dir}/vtkzbhps",
+        ])
+    else:
+        # on mac and linux, we want the dylibs / SOs also in the site-packages dir,
+        # following vtk wheel's lead
+        cmake_cmd.extend([f"-DLIB_DESTINATION:PATH={site_packages_dir}/vtkzbhps"])
+
+    if is_darwin:
+        cmake_cmd.extend([
+            "-DCMAKE_OSX_DEPLOYMENT_TARGET='10.13'"
         ])
 
     build_cmd.append(" ".join(cmake_cmd))
